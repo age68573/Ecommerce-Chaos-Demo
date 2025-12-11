@@ -17,10 +17,13 @@ def create_app():
     from app.controllers.home_controller import home_bp
     from app.controllers.product_controller import product_bp
     from app.controllers.chaos_controller import chaos_bp
+    from app.controllers.admin_product_controller import admin_product_bp
 
     app.register_blueprint(home_bp)
     app.register_blueprint(product_bp)
     app.register_blueprint(chaos_bp)
+    app.register_blueprint(admin_product_bp)
+
 
     # 健康檢查
     @app.route("/health")

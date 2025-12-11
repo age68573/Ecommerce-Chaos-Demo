@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>後台商品列表</h1>
+
+<p>
+  <a href="{{ url_for('admin_product.admin_product_create') }}" class="btn btn-primary">
+    新增商品
+  </a>
+</p>
+
+<table style="border-collapse:collapse; width:100%; background:#fff; border-radius:8px; overflow:hidden;">
+  <thead style="background:#e5e7eb;">
+    <tr>
+      <th style="padding:0.5rem; text-align:left;">ID</th>
+      <th style="padding:0.5rem; text-align:left;">名稱</th>
+      <th style="padding:0.5rem; text-align:left;">性別</th>
+      <th style="padding:0.5rem; text-align:left;">季節</th>
+      <th style="padding:0.5rem; text-align:left;">價格</th>
+      <th style="padding:0.5rem; text-align:left;">庫存</th>
+      <th style="padding:0.5rem; text-align:left;">狀態</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in products %}
+    <tr>
+      <td style="padding:0.5rem;">{{ p.id }}</td>
+      <td style="padding:0.5rem;">{{ p.name }}</td>
+      <td style="padding:0.5rem;">{{ p.gender }}</td>
+      <td style="padding:0.5rem;">{{ p.season }}</td>
+      <td style="padding:0.5rem;">${{ "%.2f"|format(p.price) }}</td>
+      <td style="padding:0.5rem;">{{ p.stock }}</td>
+      <td style="padding:0.5rem;">{{ '啟用' if p.active else '停用' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

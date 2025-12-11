@@ -3,6 +3,11 @@ import time
 from flask import current_app, send_from_directory, abort
 from app.services import chaos_service
 
+def get_product_image_folder() -> str:
+    """
+    回傳商品圖片目錄，給新增商品 / seed 用。
+    """
+    return current_app.config["PRODUCT_IMAGE_FOLDER"]
 
 def product_image_url(filename: str) -> str:
     """
