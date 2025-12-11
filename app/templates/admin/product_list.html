@@ -18,6 +18,7 @@
       <th style="padding:0.5rem; text-align:left;">價格</th>
       <th style="padding:0.5rem; text-align:left;">庫存</th>
       <th style="padding:0.5rem; text-align:left;">狀態</th>
+      <th style="padding:0.5rem; text-align:left;">操作</th>
     </tr>
   </thead>
   <tbody>
@@ -30,6 +31,14 @@
       <td style="padding:0.5rem;">${{ "%.2f"|format(p.price) }}</td>
       <td style="padding:0.5rem;">{{ p.stock }}</td>
       <td style="padding:0.5rem;">{{ '啟用' if p.active else '停用' }}</td>
+      <td style="padding:0.5rem;">
+        <form method="post"
+              action="{{ url_for('admin_product.admin_product_delete', product_id=p.id) }}"
+              style="display:inline;"
+              onsubmit="return confirm('確定要刪除「{{ p.name }}」嗎？此動作無法復原。');">
+          <button type="submit" class="btn btn-outline">刪除</button>
+        </form>
+      </td>
     </tr>
     {% endfor %}
   </tbody>

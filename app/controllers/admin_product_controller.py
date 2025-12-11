@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for
 import os
 from werkzeug.utils import secure_filename
 
@@ -6,6 +6,7 @@ from app.database import db
 from app.models.product import Product
 from app.models.product_image import ProductImage
 from app.services import image_service
+from app.services import chaos_service  # 之後如果要在新增/刪除放 chaos 可用，不用可以先不理
 
 admin_product_bp = Blueprint("admin_product", __name__, url_prefix="/admin/products")
 
@@ -13,8 +14,7 @@ admin_product_bp = Blueprint("admin_product", __name__, url_prefix="/admin/produ
 @admin_product_bp.route("/")
 def admin_product_list():
     """
-    簡單列出所有商品，之後可以再加編輯 / 下架功能。
-    先做一個入口可以確認新增成功。
+    後台商品列表
     """
     products = Product.query.order_by(Product.created_at.desc()).all()
     return render_template("admin/product_list.html", products=products)
@@ -68,7 +68,6 @@ def admin_product_create():
         errors.append("至少上傳一張商品圖片。")
 
     if errors:
-        # 直接回傳表單 + 錯誤資訊
         return render_template(
             "admin/product_form.html",
             errors=errors,
@@ -105,7 +104,6 @@ def admin_product_create():
             continue
         index += 1
         filename_raw = secure_filename(img.filename)
-        # 為了避免檔名衝突，組一個獨特檔名
         ext = os.path.splitext(filename_raw)[1] or ".jpg"
         filename = f"p{product.id}_{index}{ext}"
 
@@ -119,6 +117,54 @@ def admin_product_create():
         )
         db.session.add(pi)
 
+    db.session.commit()
+
+    return redirect(url_for("admin_product.admin_product_list"))
+
+
+@admin_product_bp.route("/<int:product_id>/delete", methods=["POST"])
+def admin_product_delete(product_id: int):
+    """
+    刪除商品：
+    - 刪除 ProductImage 資料
+    - 視情況刪除對應圖片檔案
+    - 刪除 Product
+    """
+    product = Product.query.get(product_id)
+    if not product:
+        # 找不到就回列表
+        return redirect(url_for("admin_product.admin_product_list"))
+
+    img_dir = image_service.get_product_image_folder()
+
+    # 先把這個商品的圖片取出
+    images = ProductImage.query.filter_by(product_id=product.id).all()
+
+    for img in images:
+        # 檢查是否有其他商品也在用同一個 filename
+        same_file_count = (
+            ProductImage.query
+            .filter(
+                ProductImage.filename == img.filename,
+                ProductImage.product_id != product.id
+            )
+            .count()
+        )
+
+        # 如果沒有其他人用這個檔案，再刪檔案，避免刪到共用圖片
+        if same_file_count == 0:
+            file_path = os.path.join(img_dir, img.filename)
+            try:
+                os.remove(file_path)
+            except FileNotFoundError:
+                # 檔案本來就不在就算了，不用特別處理
+                pass
+
+    # 刪除圖片紀錄
+    ProductImage.query.filter_by(product_id=product.id).delete()
+
+    # 刪除商品本身
+    db.session.delete(product)
     db.session.commit()
 
     return redirect(url_for("admin_product.admin_product_list"))
