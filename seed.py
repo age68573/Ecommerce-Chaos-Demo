@@ -4,6 +4,9 @@ from app import create_app
 from app.database import db
 from app.models.product import Product
 from app.models.product_image import ProductImage
+from app.models.user import User
+from werkzeug.security import generate_password_hash
+
 
 app = create_app()
 
@@ -136,6 +139,34 @@ def create_seed_product(sp: dict) -> None:
     db.session.commit()
     print(f"Seeded product: {sp['name']}")
 
+def ensure_admin_user():
+    """
+    若 admin user 不存在 → 建立
+    若已存在 → 更新 email & 密碼避免環境不一致
+    """
+    admin = User.query.filter_by(username="admin").first()
+
+    if admin:
+        print("Admin user already exists. Updating password/email to ensure consistency...")
+        admin.email = "admin@example.com"
+        admin.password_hash = generate_password_hash("Admin123!")   # 你可自行修改
+        admin.is_admin = True
+        db.session.commit()
+        print("Admin user updated.")
+        return
+
+    print("Creating default admin user...")
+    admin = User(
+        username="admin",
+        email="admin@example.com",
+        password_hash=generate_password_hash("Admin123!"),
+        is_admin=True,
+    )
+    db.session.add(admin)
+    db.session.commit()
+    print("Admin user created.")
+
+
 
 with app.app_context():
     print("=== Cleaning old demo products (only seed-related) ===")
@@ -172,3 +203,9 @@ with app.app_context():
         create_seed_product(sp)
 
     print("Done seeding.")
+    print("=== Ensuring admin user exists ===")
+    ensure_admin_user()
+
+    print("Seeding complete.")
+
+

@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, session
+
 import os
 from werkzeug.utils import secure_filename
 
@@ -9,6 +10,14 @@ from app.services import image_service
 from app.services import chaos_service  # 之後如果要在新增/刪除放 chaos 可用，不用可以先不理
 
 admin_product_bp = Blueprint("admin_product", __name__, url_prefix="/admin/products")
+
+@admin_product_bp.before_request
+def require_admin():
+    user_id = session.get("user_id")
+    is_admin = session.get("is_admin")
+    if not user_id or not is_admin:
+        # 轉去登入頁，帶 next 回來
+        return redirect(url_for("auth.login", next=request.path))
 
 
 @admin_product_bp.route("/")

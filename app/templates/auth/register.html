@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>會員註冊</h1>
+
+{% if errors %}
+  <div style="background:#fee2e2; color:#991b1b; padding:0.75rem 1rem; border-radius:8px; margin-bottom:1rem;">
+    <ul style="margin:0; padding-left:1.25rem;">
+      {% for e in errors %}
+        <li>{{ e }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<form method="post"
+      style="background:#fff; padding:1.5rem; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); max-width:400px;">
+
+  <div style="margin-bottom:0.75rem;">
+    <label>使用者名稱</label><br>
+    <input type="text" name="username" value="{{ form_data.username if form_data else '' }}"
+           style="width:100%; padding:0.4rem;">
+  </div>
+
+  <div style="margin-bottom:0.75rem;">
+    <label>Email</label><br>
+    <input type="email" name="email" value="{{ form_data.email if form_data else '' }}"
+           style="width:100%; padding:0.4rem;">
+  </div>
+
+  <div style="margin-bottom:0.75rem;">
+    <label>密碼</label><br>
+    <input type="password" name="password" style="width:100%; padding:0.4rem;">
+  </div>
+
+  <div style="margin-bottom:0.75rem;">
+    <label>再次輸入密碼</label><br>
+    <input type="password" name="password2" style="width:100%; padding:0.4rem;">
+  </div>
+
+  <div style="margin-top:1rem;">
+    <button type="submit" class="btn btn-primary">註冊</button>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-outline">返回登入</a>
+  </div>
+</form>
+
+{% endblock %}
