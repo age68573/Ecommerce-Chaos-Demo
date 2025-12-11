@@ -122,26 +122,108 @@ def admin_product_create():
     return redirect(url_for("admin_product.admin_product_list"))
 
 
+@admin_product_bp.route("/<int:product_id>/edit", methods=["GET", "POST"])
+def admin_product_edit(product_id: int):
+    """
+    編輯商品資訊（不動圖片）
+    """
+    product = Product.query.get(product_id)
+    if not product:
+        return redirect(url_for("admin_product.admin_product_list"))
+
+    if request.method == "GET":
+        # 把現有資料塞進 form_data，讓表單預設值顯示
+        form_data = {
+            "name": product.name,
+            "gender": product.gender,
+            "season": product.season,
+            "price": str(product.price),
+            "stock": str(product.stock),
+            "description": product.description or "",
+        }
+        return render_template(
+            "admin/product_edit.html",
+            form_data=form_data,
+            errors=None,
+            product_id=product.id,
+        )
+
+    # ----- POST：更新商品 -----
+    name = request.form.get("name", "").strip()
+    gender = request.form.get("gender", "").strip()
+    season = request.form.get("season", "").strip()
+    price = request.form.get("price", "").strip()
+    stock = request.form.get("stock", "").strip()
+    description = request.form.get("description", "").strip()
+
+    errors = []
+
+    if not name:
+        errors.append("商品名稱必填。")
+    if gender not in ("M", "F", "K"):
+        errors.append("性別必須是 男裝(M) / 女裝(F) / 童裝(K)。")
+    if season not in ("spring", "summer", "fall", "winter"):
+        errors.append("季節必須是 spring/summer/fall/winter。")
+
+    try:
+        price_value = float(price)
+        if price_value < 0:
+            errors.append("價格不可為負數。")
+    except ValueError:
+        errors.append("價格格式不正確。")
+
+    try:
+        stock_value = int(stock)
+        if stock_value < 0:
+            errors.append("庫存不可為負數。")
+    except ValueError:
+        errors.append("庫存必須是整數。")
+
+    if errors:
+        form_data = {
+            "name": name,
+            "gender": gender,
+            "season": season,
+            "price": price,
+            "stock": stock,
+            "description": description,
+        }
+        return render_template(
+            "admin/product_edit.html",
+            form_data=form_data,
+            errors=errors,
+            product_id=product.id,
+        )
+
+    # 寫回 DB（不動圖片相關欄位）
+    product.name = name
+    product.gender = gender
+    product.season = season
+    product.price = price_value
+    product.stock = stock_value
+    product.description = description
+    db.session.commit()
+
+    return redirect(url_for("admin_product.admin_product_list"))
+
+
 @admin_product_bp.route("/<int:product_id>/delete", methods=["POST"])
 def admin_product_delete(product_id: int):
     """
     刪除商品：
     - 刪除 ProductImage 資料
-    - 視情況刪除對應圖片檔案
+    - 刪除對應圖片檔案（若無其他商品共用該檔案）
     - 刪除 Product
     """
     product = Product.query.get(product_id)
     if not product:
-        # 找不到就回列表
         return redirect(url_for("admin_product.admin_product_list"))
 
     img_dir = image_service.get_product_image_folder()
 
-    # 先把這個商品的圖片取出
     images = ProductImage.query.filter_by(product_id=product.id).all()
 
     for img in images:
-        # 檢查是否有其他商品也在用同一個 filename
         same_file_count = (
             ProductImage.query
             .filter(
@@ -151,19 +233,14 @@ def admin_product_delete(product_id: int):
             .count()
         )
 
-        # 如果沒有其他人用這個檔案，再刪檔案，避免刪到共用圖片
         if same_file_count == 0:
             file_path = os.path.join(img_dir, img.filename)
             try:
                 os.remove(file_path)
             except FileNotFoundError:
-                # 檔案本來就不在就算了，不用特別處理
                 pass
 
-    # 刪除圖片紀錄
     ProductImage.query.filter_by(product_id=product.id).delete()
-
-    # 刪除商品本身
     db.session.delete(product)
     db.session.commit()
 

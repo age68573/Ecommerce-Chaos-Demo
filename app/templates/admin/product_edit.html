@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>編輯商品</h1>
+
+{% if errors %}
+  <div style="background:#fee2e2; color:#991b1b; padding:0.75rem 1rem; border-radius:8px; margin-bottom:1rem;">
+    <ul style="margin:0; padding-left:1.25rem;">
+      {% for e in errors %}
+        <li>{{ e }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<form method="post"
+      style="background:#fff; padding:1.5rem; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); max-width:600px;">
+
+  <div style="margin-bottom:0.75rem;">
+    <label>商品名稱</label><br>
+    <input type="text" name="name" value="{{ form_data.name if form_data else '' }}"
+           style="width:100%; padding:0.4rem;">
+  </div>
+
+  <div style="margin-bottom:0.75rem;">
+    <label>性別</label><br>
+    <select name="gender" style="width:100%; padding:0.4rem;">
+      <option value="">請選擇</option>
+      <option value="M" {% if form_data and form_data.gender == 'M' %}selected{% endif %}>男裝 (M)</option>
+      <option value="F" {% if form_data and form_data.gender == 'F' %}selected{% endif %}>女裝 (F)</option>
+      <option value="K" {% if form_data and form_data.gender == 'K' %}selected{% endif %}>童裝 (K)</option>
+    </select>
+  </div>
+
+  <div style="margin-bottom:0.75rem;">
+    <label>季節</label><br>
+    <select name="season" style="width:100%; padding:0.4rem;">
+      <option value="">請選擇</option>
+      <option value="spring" {% if form_data and form_data.season == 'spring' %}selected{% endif %}>春季</option>
+      <option value="summer" {% if form_data and form_data.season == 'summer' %}selected{% endif %}>夏季</option>
+      <option value="fall" {% if form_data and form_data.season == 'fall' %}selected{% endif %}>秋季</option>
+      <option value="winter" {% if form_data and form_data.season == 'winter' %}selected{% endif %}>冬季</option>
+    </select>
+  </div>
+
+  <div style="display:flex; gap:1rem; margin-bottom:0.75rem;">
+    <div style="flex:1;">
+      <label>價格</label><br>
+      <input type="number" step="0.01" name="price" value="{{ form_data.price if form_data else '' }}"
+             style="width:100%; padding:0.4rem;">
+    </div>
+    <div style="flex:1;">
+      <label>庫存</label><br>
+      <input type="number" name="stock" value="{{ form_data.stock if form_data else '' }}"
+             style="width:100%; padding:0.4rem;">
+    </div>
+  </div>
+
+  <div style="margin-bottom:0.75rem;">
+    <label>商品描述</label><br>
+    <textarea name="description" rows="3" style="width:100%; padding:0.4rem;">{{ form_data.description if form_data else '' }}</textarea>
+  </div>
+
+  <p style="font-size:0.85rem; color:#6b7280; margin-top:0.5rem;">
+    商品圖片目前不提供編輯，如需變更圖片，可以刪除商品後重新新增。
+  </p>
+
+  <div style="margin-top:1rem;">
+    <button type="submit" class="btn btn-primary">儲存</button>
+    <a href="{{ url_for('admin_product.admin_product_list') }}" class="btn btn-outline">返回列表</a>
+  </div>
+</form>
+
+{% endblock %}

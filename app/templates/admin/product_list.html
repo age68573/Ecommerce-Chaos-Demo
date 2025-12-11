@@ -32,6 +32,11 @@
       <td style="padding:0.5rem;">{{ p.stock }}</td>
       <td style="padding:0.5rem;">{{ '啟用' if p.active else '停用' }}</td>
       <td style="padding:0.5rem;">
+        <a href="{{ url_for('admin_product.admin_product_edit', product_id=p.id) }}"
+           class="btn btn-outline">
+          編輯
+        </a>
+
         <form method="post"
               action="{{ url_for('admin_product.admin_product_delete', product_id=p.id) }}"
               style="display:inline;"
