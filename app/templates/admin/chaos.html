@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Chaos 控制台</h1>
+<p>勾選以下選項，會影響實際使用者瀏覽商品 / 圖片時的行為。</p>
+
+<form method="post">
+  <div>
+    <label>
+      <input type="checkbox" name="slow_product_list" {% if flags['slow_product_list'] %}checked{% endif %}>
+      商品列表使用「爛 Query」（慢查詢）
+    </label>
+  </div>
+
+  <div>
+    <label>
+      <input type="checkbox" name="nplus1_images" {% if flags['nplus1_images'] %}checked{% endif %}>
+      商品列表啟用 N+1 圖片查詢
+    </label>
+  </div>
+
+  <div>
+    <label>
+      <input type="checkbox" name="slow_images" {% if flags['slow_images'] %}checked{% endif %}>
+      商品圖片載入變慢（延遲 3 秒）
+    </label>
+  </div>
+
+  <div>
+    <label>
+      <input type="checkbox" name="broken_images" {% if flags['broken_images'] %}checked{% endif %}>
+      商品圖片全部 404（破圖）
+    </label>
+  </div>
+
+  <div>
+    <label>
+      <input type="checkbox" name="image_permission_error" {% if flags['image_permission_error'] %}checked{% endif %}>
+      圖片讀取權限錯誤（500）
+    </label>
+  </div>
+
+  <button type="submit" class="btn btn-primary" style="margin-top:1rem;">儲存設定</button>
+</form>
+{% endblock %}

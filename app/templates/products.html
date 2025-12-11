@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>商品列表</h1>
+
+{# 第一排：性別篩選（全部 / 男裝 / 女裝 / 童裝） #}
+<div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+
+  {# 全部商品：清掉 gender & season #}
+  <a
+    href="/products"
+    class="btn {% if not current_gender and not current_season %}btn-primary{% else %}btn-outline{% endif %}">
+    全部商品
+  </a>
+
+  {# 男裝：設定 gender=M，保留目前 season（如果有） #}
+  <a
+    href="/products?gender=M{% if current_season %}&season={{ current_season }}{% endif %}"
+    class="btn {% if current_gender == 'M' %}btn-primary{% else %}btn-outline{% endif %}">
+    男裝
+  </a>
+
+  {# 女裝：設定 gender=F，保留目前 season（如果有） #}
+  <a
+    href="/products?gender=F{% if current_season %}&season={{ current_season }}{% endif %}"
+    class="btn {% if current_gender == 'F' %}btn-primary{% else %}btn-outline{% endif %}">
+    女裝
+  </a>
+
+  {# 童裝：設定 gender=K，保留目前 season（如果有） #}
+  <a
+    href="/products?gender=K{% if current_season %}&season={{ current_season }}{% endif %}"
+    class="btn {% if current_gender == 'K' %}btn-primary{% else %}btn-outline{% endif %}">
+    童裝
+  </a>
+</div>
+
+{# 第二排：季節篩選（春 / 夏 / 秋 / 冬），優先考慮目前 gender #}
+<div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.5rem;">
+
+  {# 春季：season=spring，保留目前 gender（如果有） #}
+  <a
+    href="/products?season=spring{% if current_gender %}&gender={{ current_gender }}{% endif %}"
+    class="btn {% if current_season == 'spring' %}btn-primary{% else %}btn-outline{% endif %}">
+    春季
+  </a>
+
+  {# 夏季：season=summer，保留目前 gender #}
+  <a
+    href="/products?season=summer{% if current_gender %}&gender={{ current_gender }}{% endif %}"
+    class="btn {% if current_season == 'summer' %}btn-primary{% else %}btn-outline{% endif %}">
+    夏季
+  </a>
+
+  {# 秋季：season=fall，保留目前 gender #}
+  <a
+    href="/products?season=fall{% if current_gender %}&gender={{ current_gender }}{% endif %}"
+    class="btn {% if current_season == 'fall' %}btn-primary{% else %}btn-outline{% endif %}">
+    秋季
+  </a>
+
+  {# 冬季：season=winter，保留目前 gender #}
+  <a
+    href="/products?season=winter{% if current_gender %}&gender={{ current_gender }}{% endif %}"
+    class="btn {% if current_season == 'winter' %}btn-primary{% else %}btn-outline{% endif %}">
+    冬季
+  </a>
+</div>
+
+{# 商品卡片列表 #}
+<div class="grid">
+  {% for p in products %}
+  <div class="card">
+    {% set imgs = p._nplus1_images if p._nplus1_images is defined else p.images %}
+    {% if imgs and imgs|length > 0 %}
+      <img class="product-thumb" src="{{ image_url(imgs[0].filename) }}" alt="{{ p.name }}">
+    {% endif %}
+    <h3>{{ p.name }}</h3>
+    <p>${{ "%.2f"|format(p.price) }}</p>
+    <a href="/products/{{ p.id }}" class="btn btn-primary">詳細</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

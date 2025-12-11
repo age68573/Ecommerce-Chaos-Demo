@@ -1,0 +1,146 @@
+------------------------------------------------------------
+-- 1. 建立資料庫（如果尚未存在）
+------------------------------------------------------------
+IF NOT EXISTS (
+    SELECT 1 FROM sys.databases WHERE name = N'EcommerceChaosDemo'
+)
+BEGIN
+    CREATE DATABASE EcommerceChaosDemo;
+END
+GO
+
+------------------------------------------------------------
+-- 2. 切換到資料庫
+------------------------------------------------------------
+USE EcommerceChaosDemo;
+GO
+
+------------------------------------------------------------
+-- 3. 建立 Products（產品表）
+--    products
+--    - id (PK)
+--    - name
+--    - gender  (M/F/K)
+--    - season  (spring/summer/fall/winter)
+--    - price
+--    - stock
+--    - description
+--    - active (bool)
+--    - created_at
+------------------------------------------------------------
+IF OBJECT_ID('dbo.Products', 'U') IS NOT NULL
+    DROP TABLE dbo.Products;
+GO
+
+CREATE TABLE dbo.Products (
+    id          INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    name        NVARCHAR(100)     NOT NULL,
+    gender      CHAR(1)           NULL
+        CONSTRAINT CK_Products_Gender
+        CHECK (gender IN ('M', 'F', 'K')),
+    season      VARCHAR(10)       NULL
+        CONSTRAINT CK_Products_Season
+        CHECK (season IN ('spring', 'summer', 'fall', 'winter')),
+    price       DECIMAL(10,2)     NOT NULL,
+    stock       INT               NOT NULL CONSTRAINT DF_Products_Stock DEFAULT (0),
+    description NVARCHAR(MAX)     NULL,
+    active      BIT               NOT NULL CONSTRAINT DF_Products_Active DEFAULT (1),
+    created_at  DATETIME2(0)      NOT NULL CONSTRAINT DF_Products_CreatedAt DEFAULT (SYSUTCDATETIME())
+);
+GO
+
+------------------------------------------------------------
+-- 4. 建立 ProductImages（產品圖片表）
+--    product_images
+--    - id (PK)
+--    - product_id (FK -> Products.id)
+--    - filename
+--    - is_main (bool)
+------------------------------------------------------------
+IF OBJECT_ID('dbo.ProductImages', 'U') IS NOT NULL
+    DROP TABLE dbo.ProductImages;
+GO
+
+CREATE TABLE dbo.ProductImages (
+    id          INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    product_id  INT               NOT NULL,
+    filename    NVARCHAR(255)     NOT NULL,
+    is_main     BIT               NOT NULL CONSTRAINT DF_ProductImages_IsMain DEFAULT (0),
+
+    CONSTRAINT FK_ProductImages_Products
+        FOREIGN KEY (product_id)
+        REFERENCES dbo.Products(id)
+        ON DELETE CASCADE
+);
+GO
+
+------------------------------------------------------------
+-- 5. 建立 Orders（訂單表）
+--    orders
+--    - id
+--    - user_id   （先用 INT，之後你可視情況改成 FK 到 Users）
+--    - total_amount
+--    - status (pending/paid/failed)
+--    - created_at
+------------------------------------------------------------
+IF OBJECT_ID('dbo.Orders', 'U') IS NOT NULL
+    DROP TABLE dbo.Orders;
+GO
+
+CREATE TABLE dbo.Orders (
+    id           INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    user_id      INT               NULL,
+    total_amount DECIMAL(10,2)     NOT NULL,
+    status       VARCHAR(20)       NOT NULL
+        CONSTRAINT CK_Orders_Status
+        CHECK (status IN ('pending', 'paid', 'failed')),
+    created_at   DATETIME2(0)      NOT NULL CONSTRAINT DF_Orders_CreatedAt DEFAULT (SYSUTCDATETIME())
+);
+GO
+
+------------------------------------------------------------
+-- 6. 建立 OrderItems（訂單明細表）
+--    order_items
+--    - id
+--    - order_id (FK -> Orders.id)
+--    - product_id (FK -> Products.id)
+--    - quantity
+--    - unit_price
+------------------------------------------------------------
+IF OBJECT_ID('dbo.OrderItems', 'U') IS NOT NULL
+    DROP TABLE dbo.OrderItems;
+GO
+
+CREATE TABLE dbo.OrderItems (
+    id          INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    order_id    INT               NOT NULL,
+    product_id  INT               NOT NULL,
+    quantity    INT               NOT NULL,
+    unit_price  DECIMAL(10,2)     NOT NULL,
+
+    CONSTRAINT FK_OrderItems_Orders
+        FOREIGN KEY (order_id)
+        REFERENCES dbo.Orders(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT FK_OrderItems_Products
+        FOREIGN KEY (product_id)
+        REFERENCES dbo.Products(id)
+);
+GO
+
+------------------------------------------------------------
+-- 7. 建立 ChaosConfig（混沌設定表）
+--    chaos_config
+--    - key   (PK)
+--    - value (true/false/json 等字串，由程式解讀)
+------------------------------------------------------------
+IF OBJECT_ID('dbo.ChaosConfig', 'U') IS NOT NULL
+    DROP TABLE dbo.ChaosConfig;
+GO
+
+CREATE TABLE dbo.ChaosConfig (
+    [key]   NVARCHAR(100) NOT NULL PRIMARY KEY,
+    [value] NVARCHAR(MAX) NULL
+);
+GO

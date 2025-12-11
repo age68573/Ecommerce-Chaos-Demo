@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ product.name }}</h1>
+
+<div style="display:flex; gap:2rem; flex-wrap:wrap;">
+  <div>
+    {% if main_image %}
+      <img src="{{ image_url(main_image.filename) }}" alt="{{ product.name }}" style="max-width:360px; border-radius:12px; display:block;">
+    {% endif %}
+    {% if detail_images %}
+      <div style="margin-top:1rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+        {% for img in detail_images %}
+          <img src="{{ image_url(img.filename) }}" alt="{{ product.name }}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;">
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+  <div>
+    <p>價格：${{ "%.2f"|format(product.price) }}</p>
+    <p>性別：{{ product.gender }}</p>
+    <p>季節：{{ product.season }}</p>
+    <p>庫存：{{ product.stock }}</p>
+    <p>{{ product.description }}</p>
+  </div>
+</div>
+{% endblock %}

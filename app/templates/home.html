@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>歡迎來到服飾電商 Chaos Demo</h1>
+<p>你可以透過 Instana 觀察這個系統在正常與「混沌模式」下的行為。</p>
+
+<div style="margin-top:1rem; margin-bottom:1rem;">
+  <a href="/products" class="btn btn-primary">全部商品</a>
+</div>
+
+<div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.5rem;">
+  <a href="/products?gender=M" class="btn btn-outline">男裝</a>
+  <a href="/products?gender=F" class="btn btn-outline">女裝</a>
+  <a href="/products?gender=K" class="btn btn-outline">童裝</a>
+  <a href="/products?season=summer" class="btn btn-outline">夏季</a>
+  <a href="/products?season=winter" class="btn btn-outline">冬季</a>
+</div>
+
+<a href="/admin/chaos/" class="btn btn-outline">前往 Chaos 控制台</a>
+{% endblock %}
