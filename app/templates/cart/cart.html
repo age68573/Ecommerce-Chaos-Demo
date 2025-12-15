@@ -63,6 +63,13 @@
   </div>
 </form>
 
+<form method="post" action="{{ url_for('order.checkout') }}">
+  <button type="submit" class="btn btn-primary">
+    建立訂單（結帳）
+  </button>
+</form>
+
+
 {% endif %}
 
 {% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
+  <h1>訂單 #{{ order.id }}</h1>
+  <div style="font-size:0.9rem; color:#6b7280;">
+    {{ order.created_at }}
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:1.5rem;">
+  <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+    <div>
+      <div style="font-size:0.85rem; color:#6b7280;">訂單狀態</div>
+      <div style="font-weight:600;">{{ order.status }}</div>
+    </div>
+    <div>
+      <div style="font-size:0.85rem; color:#6b7280;">訂單總額</div>
+      <div style="font-weight:600; font-size:1.1rem;">
+        ${{ "%.2f"|format(order.total_amount) }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3 style="margin-bottom:0.75rem;">商品明細</h3>
+
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+      <tr style="border-bottom:1px solid #e5e7eb;">
+        <th style="text-align:left; padding:0.5rem;">商品</th>
+        <th style="text-align:right; padding:0.5rem;">單價</th>
+        <th style="text-align:center; padding:0.5rem;">數量</th>
+        <th style="text-align:right; padding:0.5rem;">小計</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in order.items %}
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td style="padding:0.5rem;">{{ i.product_name }}</td>
+        <td style="padding:0.5rem; text-align:right;">
+          ${{ "%.2f"|format(i.unit_price) }}
+        </td>
+        <td style="padding:0.5rem; text-align:center;">
+          {{ i.quantity }}
+        </td>
+        <td style="padding:0.5rem; text-align:right;">
+          ${{ "%.2f"|format(i.unit_price * i.quantity) }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div style="margin-top:1.5rem;">
+  <a href="{{ url_for('order.my_orders') }}" class="btn btn-outline">
+    ← 返回訂單列表
+  </a>
+</div>
+
+{% endblock %}

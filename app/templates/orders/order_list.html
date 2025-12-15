@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 style="margin-bottom:1rem;">我的訂單</h1>
+
+{% if orders|length == 0 %}
+  <div class="card">
+    <p>目前尚無訂單。</p>
+    <a href="/products" class="btn btn-primary">去逛商品</a>
+  </div>
+{% else %}
+
+<div style="display:flex; flex-direction:column; gap:1rem;">
+  {% for o in orders %}
+  <div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+    <div>
+      <div style="font-weight:600; font-size:1.05rem;">
+        訂單 #{{ o.id }}
+      </div>
+      <div style="font-size:0.85rem; color:#6b7280;">
+        {{ o.created_at }}
+      </div>
+    </div>
+
+    <div style="text-align:right;">
+      <div style="font-size:1rem; font-weight:600;">
+        ${{ "%.2f"|format(o.total_amount) }}
+      </div>
+      <div style="font-size:0.85rem; color:#2563eb;">
+        {{ o.status }}
+      </div>
+    </div>
+
+    <div>
+      <a href="{{ url_for('order.order_detail', order_id=o.id) }}" class="btn btn-outline">
+        查看詳情
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% endif %}
+{% endblock %}

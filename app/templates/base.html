@@ -64,6 +64,10 @@
       {% if current_user %}
         <a href="/cart/">購物車</a>
       {% endif %}
+      {% if current_user %}
+        <a href="{{ url_for('order.my_orders') }}">我的訂單</a>
+      {% endif %}
+
       <a href="/admin/users/">會員管理</a>
       <a href="/admin/chaos/">Chaos 控制台</a>
       {% if current_user %}
