@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>會員管理</h1>
+
+<form method="get" style="margin:0 0 1rem 0; display:flex; gap:0.5rem; flex-wrap:wrap;">
+  <input type="text" name="q" value="{{ q or '' }}" placeholder="搜尋 username / email"
+         style="padding:0.4rem; min-width:260px;">
+  <button type="submit" class="btn btn-primary">搜尋</button>
+  <a href="{{ url_for('admin_user.user_list') }}" class="btn btn-outline">清除</a>
+</form>
+
+<table style="border-collapse:collapse; width:100%; background:#fff; border-radius:8px; overflow:hidden;">
+  <thead style="background:#e5e7eb;">
+    <tr>
+      <th style="padding:0.5rem; text-align:left;">ID</th>
+      <th style="padding:0.5rem; text-align:left;">Username</th>
+      <th style="padding:0.5rem; text-align:left;">Email</th>
+      <th style="padding:0.5rem; text-align:left;">Admin</th>
+      <th style="padding:0.5rem; text-align:left;">Created</th>
+      <th style="padding:0.5rem; text-align:left;">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in users %}
+    <tr>
+      <td style="padding:0.5rem;">{{ u.id }}</td>
+      <td style="padding:0.5rem;">{{ u.username }}</td>
+      <td style="padding:0.5rem;">{{ u.email }}</td>
+      <td style="padding:0.5rem;">{{ 'Yes' if u.is_admin else 'No' }}</td>
+      <td style="padding:0.5rem;">{{ u.created_at }}</td>
+      <td style="padding:0.5rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <a class="btn btn-outline" href="{{ url_for('admin_user.user_edit', user_id=u.id) }}">編輯</a>
+
+        <form method="post" action="{{ url_for('admin_user.toggle_admin', user_id=u.id) }}"
+              style="display:inline;">
+          <button type="submit" class="btn btn-outline">
+            {{ '降級Admin' if u.is_admin else '升級Admin' }}
+          </button>
+        </form>
+
+        <form method="post" action="{{ url_for('admin_user.user_delete', user_id=u.id) }}"
+              style="display:inline;"
+              onsubmit="return confirm('確定要刪除會員 {{ u.username }} 嗎？');">
+          <button type="submit" class="btn btn-outline">刪除</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
