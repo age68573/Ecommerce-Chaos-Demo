@@ -77,6 +77,12 @@
     <h3>{{ p.name }}</h3>
     <p>${{ "%.2f"|format(p.price) }}</p>
     <a href="/products/{{ p.id }}" class="btn btn-primary">詳細</a>
+    <form method="post" action="{{ url_for('cart.cart_add') }}" style="margin-top:0.5rem;">
+      <input type="hidden" name="product_id" value="{{ p.id }}">
+      <input type="hidden" name="qty" value="1">
+      <button type="submit" class="btn btn-outline">加入購物車</button>
+    </form>
+
   </div>
   {% endfor %}
 </div>

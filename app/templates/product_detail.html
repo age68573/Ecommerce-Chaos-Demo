@@ -22,5 +22,12 @@
     <p>庫存：{{ product.stock }}</p>
     <p>{{ product.description }}</p>
   </div>
+  <form method="post" action="{{ url_for('cart.cart_add') }}" style="margin-top:1rem;">
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+    <label>數量：</label>
+    <input type="number" name="qty" value="1" min="1" style="width:90px; padding:0.3rem;">
+    <button type="submit" class="btn btn-primary">加入購物車</button>
+  </form>
+
 </div>
 {% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>購物車</h1>
+
+{% if cart["items"]|length == 0 %}
+  <p>目前購物車是空的。</p>
+  <a class="btn btn-primary" href="/products">去逛逛商品</a>
+{% else %}
+
+<form method="post" action="{{ url_for('cart.cart_update') }}">
+  <table style="width:100%; border-collapse:collapse; background:#fff; border-radius:8px; overflow:hidden;">
+    <thead style="background:#e5e7eb;">
+      <tr>
+        <th style="padding:0.5rem; text-align:left;">商品</th>
+        <th style="padding:0.5rem; text-align:right;">單價</th>
+        <th style="padding:0.5rem; text-align:center;">數量</th>
+        <th style="padding:0.5rem; text-align:right;">小計</th>
+        <th style="padding:0.5rem; text-align:left;">操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in cart["items"] %}
+      <tr>
+        <td style="padding:0.5rem;">
+          <div style="font-weight:600;">{{ item.product.name }}</div>
+          <div style="font-size:0.85rem; color:#6b7280;">{{ item.product.gender }} / {{ item.product.season }}</div>
+        </td>
+        <td style="padding:0.5rem; text-align:right;">${{ "%.2f"|format(item.product.price) }}</td>
+        <td style="padding:0.5rem; text-align:center;">
+          <input type="number"
+                 min="0"
+                 name="qty_{{ item.product.id }}"
+                 value="{{ item.qty }}"
+                 style="width:80px; padding:0.3rem;">
+          <div style="font-size:0.75rem; color:#6b7280;">0 = 移除</div>
+        </td>
+        <td style="padding:0.5rem; text-align:right;">${{ "%.2f"|format(item.line_total) }}</td>
+        <td style="padding:0.5rem;">
+          <form method="post" action="{{ url_for('cart.cart_remove') }}" style="display:inline;">
+            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+            <button type="submit" class="btn btn-outline">移除</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; flex-wrap:wrap; gap:0.75rem;">
+    <div style="font-size:1.05rem;">
+      <b>總數量：</b>{{ cart["total_qty"] }}　
+      <b>總金額：</b>${{ "%.2f"|format(cart["subtotal"]) }}
+    </div>
+
+    <div style="display:flex; gap:0.5rem;">
+      <button type="submit" class="btn btn-primary">更新購物車</button>
+      <form method="post" action="{{ url_for('cart.cart_clear') }}" style="display:inline;"
+            onsubmit="return confirm('確定清空購物車？');">
+        <button type="submit" class="btn btn-outline">清空</button>
+      </form>
+      <a class="btn btn-outline" href="/products">繼續購物</a>
+    </div>
+  </div>
+</form>
+
+{% endif %}
+
+{% endblock %}
