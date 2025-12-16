@@ -14,6 +14,35 @@
     .btn-primary { background:#2563eb; color:#fff; }
     .btn-outline { border:1px solid #9ca3af; color:#111827; background:transparent; }
     img.product-thumb { max-width:100%; border-radius:8px; display:block; margin-bottom:0.5rem; }
+    .dropdown { display:inline-block; position:relative; }
+    .dropbtn {
+      background: transparent;
+      border: none;
+      color:#e5e7eb;
+      cursor:pointer;
+      font-size:1rem;
+      margin-left:1rem;
+    }
+    .dropdown-content {
+      display:none;
+      position:absolute;
+      background:#111827;
+      min-width: 160px;
+      box-shadow:0 8px 16px rgba(0,0,0,0.2);
+      border-radius:8px;
+      overflow:hidden;
+      z-index:999;
+    }
+    .dropdown-content a {
+      display:block;
+      padding:0.6rem 0.8rem;
+      color:#e5e7eb;
+      text-decoration:none;
+      white-space:nowrap;
+    }
+    .dropdown-content a:hover { background:#1f2937; }
+    .dropdown:hover .dropdown-content { display:block; }
+
   </style>
 
   {# ==== Instana EUM 基本 script ==== #}
@@ -60,16 +89,25 @@
     <nav>
       <a href="/">首頁</a>
       <a href="/products">商品列表</a>
-      <a href="/admin/products/">後台商品</a>
+
       {% if current_user %}
         <a href="/cart/">購物車</a>
-      {% endif %}
-      {% if current_user %}
-        <a href="{{ url_for('order.my_orders') }}">我的訂單</a>
+        <a href="/orders/">我的訂單</a>
       {% endif %}
 
-      <a href="/admin/users/">會員管理</a>
-      <a href="/admin/chaos/">Chaos 控制台</a>
+      {% if current_user and current_user.is_admin %}
+        <div class="dropdown">
+          <button class="dropbtn">管理 ▾</button>
+          <div class="dropdown-content">
+            <a href="/admin/products/">後台商品</a>
+            <a href="/admin/users/">會員管理</a>
+            <a href="/admin/orders/">訂單管理</a>
+          </div>
+        </div>
+
+        <a href="/admin/chaos/">Chaos 控制台</a>
+      {% endif %}
+
       {% if current_user %}
         <span style="margin-left:1rem; font-size:0.9rem;">Hi, {{ current_user.username }}</span>
         <a href="{{ url_for('auth.logout') }}">登出</a>

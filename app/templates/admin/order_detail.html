@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+  <div>
+    <h1 style="margin:0;">訂單 #{{ order.id }}</h1>
+    <div style="font-size:0.9rem; color:#6b7280;">user_id: {{ order.user_id }} ・ {{ order.created_at }}</div>
+  </div>
+
+  <div style="text-align:right;">
+    <div style="font-weight:800; font-size:1.2rem;">${{ "%.2f"|format(order.total_amount) }}</div>
+    <div style="color:#2563eb;">{{ order.status }}</div>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:1rem;">
+  <h3 style="margin-top:0;">商品明細</h3>
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+      <tr style="border-bottom:1px solid #e5e7eb;">
+        <th style="text-align:left; padding:0.5rem;">商品</th>
+        <th style="text-align:right; padding:0.5rem;">單價</th>
+        <th style="text-align:center; padding:0.5rem;">數量</th>
+        <th style="text-align:right; padding:0.5rem;">小計</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in order.items %}
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td style="padding:0.5rem;">{{ i.product_name }}</td>
+        <td style="padding:0.5rem; text-align:right;">${{ "%.2f"|format(i.unit_price) }}</td>
+        <td style="padding:0.5rem; text-align:center;">{{ i.quantity }}</td>
+        <td style="padding:0.5rem; text-align:right;">${{ "%.2f"|format(i.unit_price * i.quantity) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+  <a href="{{ url_for('admin_order.order_list_all') }}" class="btn btn-outline">← 回訂單列表</a>
+
+  <form method="post" action="{{ url_for('admin_order.order_delete_admin', order_id=order.id) }}"
+        style="display:inline;"
+        onsubmit="return confirm('確定要刪除訂單 #{{ order.id }} 嗎？（僅允許刪除 created/failed/cancelled）');">
+    <button type="submit" class="btn btn-outline">刪除此訂單</button>
+  </form>
+</div>
+
+{% endblock %}
