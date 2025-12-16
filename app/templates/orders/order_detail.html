@@ -1,14 +1,64 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
-  <h1>訂單 #{{ order.id }}</h1>
-  <div style="font-size:0.9rem; color:#6b7280;">
-    {{ order.created_at }}
+<div class="card" style="margin-bottom:1.5rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+    <div>
+      <h2 style="margin:0;">訂單 #{{ order.id }}</h2>
+
+      {% if order.status == "created" %}
+        <div style="color:#b45309; font-weight:600;">狀態：尚未付款</div>
+      {% elif order.status == "pending" %}
+        <div style="display:flex; align-items:center; gap:0.5rem; color:#2563eb; font-weight:600;">
+          <span class="spinner"></span>
+          狀態：付款處理中…（請稍候）
+        </div>
+
+        <div style="font-size:0.85rem; color:#6b7280; margin-top:0.25rem;">
+          系統將自動更新付款結果。
+        </div>
+
+        <script>
+          // pending 時自動刷新（每 2 秒）
+          setTimeout(function () {
+            window.location.reload();
+          }, 2000);
+        </script>
+      {% elif order.status == "paid" %}
+        <div style="color:#15803d; font-weight:600;">狀態：付款成功</div>
+      {% elif order.status == "failed" %}
+        <div style="color:#b91c1c; font-weight:600;">狀態：付款失敗</div>
+      {% else %}
+        <div style="color:#6b7280;">狀態：{{ order.status }}</div>
+      {% endif %}
+
+      <div style="font-size:0.85rem; color:#6b7280;">
+        建立時間：{{ order.created_at }}
+      </div>
+    </div>
+
+    <div style="text-align:right;">
+      <div style="font-size:1.4rem; font-weight:800;">
+        ${{ "%.2f"|format(order.total_amount) }}
+      </div>
+
+      {# ===== 付款按鈕：只在該出現時出現 ===== #}
+      {% if order.status in ["created", "failed"] %}
+        <form method="post"
+              action="{{ url_for('order.pay_order', order_id=order.id) }}"
+              style="margin-top:0.75rem;">
+          <button type="submit" class="btn btn-primary"
+                  style="padding:0.6rem 1.2rem; font-size:1rem;">
+            {{ "重新付款" if order.status == "failed" else "進行付款" }}
+          </button>
+        </form>
+      {% endif %}
+    </div>
   </div>
 </div>
 
-<div class="card" style="margin-bottom:1.5rem;">
+
+<!-- <div class="card" style="margin-bottom:1.5rem;">
   <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
     <div>
       <div style="font-size:0.85rem; color:#6b7280;">訂單狀態</div>
@@ -21,7 +71,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 <div class="card">
   <h3 style="margin-bottom:0.75rem;">商品明細</h3>
